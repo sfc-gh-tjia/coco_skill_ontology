@@ -49,36 +49,61 @@ CREATE SEMANTIC VIEW  -->  Cortex Analyst queries
 
 ## Quick Start
 
-**Prerequisites:** Python >= 3.10, [uv](https://docs.astral.sh/uv/), Snowflake account with CREATE TABLE/VIEW privileges, Cortex Analyst enabled.
+This is a **Cortex Code skill** — you use it through natural-language prompts in [Cortex Code](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code), not by running scripts directly. The skill handles parsing, mapping, code generation, and deployment for you.
 
-```bash
-# 1. Parse an OWL ontology
-uv run --script ontology-semantic-modeler/scripts/parse_owl.py -- \
-  --owl-file /path/to/ontology.owl \
-  --output-dir /tmp/parsed
+**Prerequisites:** [Cortex Code](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code) with the `ontology-semantic-modeler` skill installed, a Snowflake account with CREATE TABLE/VIEW privileges, Cortex Analyst enabled.
 
-# 2. Fill in the mappings template (OWL classes -> Snowflake tables)
-cp ontology-semantic-modeler/assets/mappings_template.json my_mappings.json
-# edit my_mappings.json
+### Example: Cell Ontology + PRISM Drug Data
 
-# 3. Generate SQL + YAML artifacts
-uv run --script ontology-semantic-modeler/scripts/generate_artifacts.py -- \
-  --classes-json /tmp/parsed/classes.json \
-  --relations-json /tmp/parsed/relations.json \
-  --mappings-json my_mappings.json \
-  --database MY_DB --schema MY_SCHEMA --ontology-name MY_ONT \
-  --output-dir /tmp/generated
+The following walkthrough shows the exact prompts used to produce the artifacts in [`test/`](test/). Each prompt triggers one step of the skill's 6-step workflow.
 
-# 4. Deploy to Snowflake (run the two SQL files, then create the semantic view)
+---
 
-# 5. Visualize (optional)
-uv run --script ontology-semantic-modeler/scripts/visualize_ontology.py -- \
-  --classes-json /tmp/parsed/classes.json \
-  --relations-json /tmp/parsed/relations.json \
-  --semantic-model /tmp/generated/03_ontology_semantic_model.yaml
-```
+**Prompt 1 — Kick off the skill and provide inputs**
 
-See [`ontology-semantic-modeler/README.md`](ontology-semantic-modeler/README.md) for full documentation.
+> I have an OWL ontology file at `test/input/cell_ontology_prism.owl` that models the Cell Ontology hierarchy relevant to our PRISM drug screening data. I also have an existing semantic model at `test/input/prism_drug_efficacy.yaml` for the PRISM tables.
+>
+> I want to generate an ontology semantic model that bridges the cell type hierarchy with our Snowflake tables in `TEMP.ONTOLOGY_POC`. Use ontology name `CL_PRISM`. The source tables are `KG_NODE`, `KG_EDGE`, `PRISM_TREATMENTS`, `PRISM_CELL_LINES`, `PRISM_VIABILITY`, and `PRISM_TISSUE_TO_CL`.
+
+The skill gathers your inputs (Step 1), then parses the OWL file (Step 2). It reports back:
+
+> *Parsed 34 classes (11 abstract, 23 concrete), 4 object properties, max hierarchy depth 5. Root: Thing → BiomedicalEntity → CellType / AnatomicalEntity / Treatment / CellLine / ViabilityMeasurement.*
+
+Output: `test/parsed/classes.json`, `test/parsed/relations.json`, `test/parsed/stats.json`
+
+---
+
+**Prompt 2 — Review and confirm mappings**
+
+> Map CellType and AnatomicalEntity to `KG_NODE` with NODE_TYPE filters. Map Treatment to `PRISM_TREATMENTS`, CellLine to `PRISM_CELL_LINES`, ViabilityMeasurement to `PRISM_VIABILITY`. For relationships, map subClassOf to `KG_EDGE` filtered by `EDGE_TYPE = 'subClassOf'` and derives_from to `PRISM_TISSUE_TO_CL`.
+
+The skill presents a mapping table for confirmation (Step 3), then generates all SQL and YAML artifacts (Step 4):
+
+> *Generated 3 files: `01_metadata_tables.sql` (4 tables, 34 class rows), `02_abstract_views.sql` (10 views), `03_ontology_semantic_model.yaml` (6 semantic tables, 5 verified queries).*
+
+Output: `test/generated/01_metadata_tables.sql`, `test/generated/02_abstract_views.sql`, `test/generated/03_ontology_semantic_model.yaml`
+
+---
+
+**Prompt 3 — Deploy**
+
+> Deploy everything to Snowflake in `TEMP.ONTOLOGY_POC`.
+
+The skill executes the SQL files in order and creates the semantic view (Step 5):
+
+> *Created 4 metadata tables, 10 views, and semantic view `CL_PRISM_ONTOLOGY_SEMANTIC_VIEW` in `TEMP.ONTOLOGY_POC`.*
+
+---
+
+**Prompt 4 — Visualize (optional)**
+
+> Show me the ontology visualization.
+
+The skill launches the Streamlit app (Step 6) with an interactive class hierarchy tree, force-directed ontology graph, and coverage matrix.
+
+---
+
+See [`ontology-semantic-modeler/README.md`](ontology-semantic-modeler/README.md) for full documentation including architecture details and customization options.
 
 ## End-to-End Test
 

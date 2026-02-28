@@ -50,92 +50,104 @@ ontology-semantic-modeler/
 
 ## Prerequisites
 
-- **Python** >= 3.10
-- **[uv](https://docs.astral.sh/uv/)** — used to run scripts with inline dependency resolution (PEP 723). No `pyproject.toml` or virtual environment setup required.
+- **[Cortex Code](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code)** with this skill installed
 - **Snowflake** account with `CREATE TABLE` and `CREATE VIEW` privileges on the target schema
 - **Cortex Analyst** enabled for semantic view creation
 
+Script-level dependencies (Python >= 3.10, [uv](https://docs.astral.sh/uv/), rdflib, pyyaml) are resolved automatically via PEP 723 inline metadata — no `pyproject.toml` or virtual environment setup needed.
+
 ## Quick Start
 
-### 1. Parse an OWL ontology
+This is a **Cortex Code skill** — you use it through natural-language prompts, not by running scripts directly. The skill orchestrates parsing, mapping, code generation, deployment, and visualization for you.
+
+The walkthrough below shows the exact prompts used to produce the test artifacts in [`../test/`](../test/). Each prompt maps to one or more steps of the skill's 6-step workflow.
+
+### Prompt 1 — Provide inputs and parse the ontology (Steps 1-2)
+
+> I have an OWL ontology at `test/input/cell_ontology_prism.owl` modeling the Cell Ontology hierarchy for our PRISM drug screening data. I also have a baseline semantic model at `test/input/prism_drug_efficacy.yaml`.
+>
+> Generate an ontology semantic model that bridges the cell type hierarchy with our Snowflake tables in `TEMP.ONTOLOGY_POC`. Use ontology name `CL_PRISM`. Source tables: `KG_NODE`, `KG_EDGE`, `PRISM_TREATMENTS`, `PRISM_CELL_LINES`, `PRISM_VIABILITY`, `PRISM_TISSUE_TO_CL`.
+
+**What happens:** The skill collects your inputs (Step 1), runs `parse_owl.py` on the OWL file (Step 2), and reports the parsed ontology structure:
+
+> *Parsed 34 classes (11 abstract, 23 concrete), 4 object properties, max hierarchy depth 5.*
+> *Root: Thing → BiomedicalEntity → CellType / AnatomicalEntity / Treatment / CellLine / ViabilityMeasurement.*
+
+**Output produced:** `test/parsed/classes.json`, `test/parsed/relations.json`, `test/parsed/stats.json`
+
+---
+
+### Prompt 2 — Confirm class-to-table mappings and generate artifacts (Steps 3-4)
+
+> Map CellType and AnatomicalEntity to `KG_NODE` with NODE_TYPE filters. Map Treatment to `PRISM_TREATMENTS`, CellLine to `PRISM_CELL_LINES`, ViabilityMeasurement to `PRISM_VIABILITY`. For relationships, map subClassOf to `KG_EDGE` filtered by `EDGE_TYPE = 'subClassOf'`, and derives_from to `PRISM_TISSUE_TO_CL`.
+
+**What happens:** The skill presents a mapping table for your review (Step 3), saves the confirmed mappings to `test/input/prism_biomed_mappings.json`, then runs `generate_artifacts.py` to produce all SQL and YAML (Step 4):
+
+> *Generated 3 files:*
+> - *`01_metadata_tables.sql` — 4 metadata tables (ONT_CLASS with 34 rows, ONT_RELATION_DEF with 4 rows, ONT_CLASS_MAPPING with 5 rows, ONT_RELATION_MAPPING with 2 rows)*
+> - *`02_abstract_views.sql` — 10 views (VW_ONT_SUBCLASS_OF, 5 entity views, VW_ONT_ALL_ENTITIES, VW_DESCENDANTS, VW_ANCESTORS, VW_ONT_HIERARCHY_STATS)*
+> - *`03_ontology_semantic_model.yaml` — 6 semantic tables, 5 verified queries*
+
+**Output produced:** `test/generated/01_metadata_tables.sql`, `test/generated/02_abstract_views.sql`, `test/generated/03_ontology_semantic_model.yaml`
+
+---
+
+### Prompt 3 — Deploy to Snowflake (Step 5)
+
+> Deploy everything to Snowflake in `TEMP.ONTOLOGY_POC`.
+
+**What happens:** The skill executes the metadata tables SQL, then the views SQL, then creates the semantic view:
+
+> *Created 4 metadata tables, 10 views, and semantic view `CL_PRISM_ONTOLOGY_SEMANTIC_VIEW` in `TEMP.ONTOLOGY_POC`. Verification: ONT_CLASS has 34 rows, VW_ONT_SUBCLASS_OF returns hierarchy edges, recursive descendant CTE works.*
+
+---
+
+### Prompt 4 — Visualize (Step 6, optional)
+
+> Show me the ontology visualization.
+
+**What happens:** The skill launches the Streamlit app with three tabs:
+
+- **Class Hierarchy** — expandable tree with search, shows ancestry paths
+- **Ontology Graph** — force-directed graph with coverage coloring (green = mapped, blue = covered by ancestor, red = unmapped, gray = abstract)
+- **Coverage Matrix** — breakdown of mapped/covered/unmapped classes with progress bar
+
+---
+
+### What you can ask after deployment
+
+Once the semantic view is live, Cortex Analyst can answer questions like:
+
+- *"What are all descendants of epithelial cell?"* — recursive CTE traversal
+- *"What are the direct children of CellType?"* — direct subclass lookup
+- *"Which entities have the most direct children?"* — hub node identification
+- *"Show drug efficacy for all epithelial-derived cancers"* — cohort expansion when combined with the baseline PRISM semantic model
+
+## Running Scripts Directly
+
+If you prefer to run the scripts outside of Cortex Code (e.g., in CI or standalone), each script uses PEP 723 inline metadata and can be run with `uv`:
 
 ```bash
+# Parse OWL
 uv run --script scripts/parse_owl.py -- \
-  --owl-file /path/to/ontology.owl \
-  --output-dir /tmp/ontology_parsed
-```
+  --owl-file /path/to/ontology.owl --output-dir /tmp/parsed
 
-Outputs `classes.json`, `relations.json`, `individuals.json`, and `stats.json` to the output directory. Supports `.owl` (OWL/XML), `.rdf` (RDF/XML), and `.ttl` (Turtle) formats with auto-detection.
-
-**Options:**
-- `--format` — Override format auto-detection (`xml`, `turtle`, `n3`, `nt`)
-- `--exclude-deprecated` — Skip deprecated OWL classes
-- `--namespace-filter` — Only include classes from a specific namespace prefix
-
-### 2. Create a mappings file
-
-Copy `assets/mappings_template.json` and fill in your OWL class-to-table mappings. See `references/example_biomed_output/biomed_mappings.json` for a complete example.
-
-Each class mapping specifies:
-
-| Field | Description |
-|---|---|
-| `class_name` | OWL class name (must match parsed output) |
-| `source_table` | Fully-qualified Snowflake table (`DB.SCHEMA.TABLE`) |
-| `filter_condition` | Optional WHERE clause when multiple classes share one table |
-| `id_column` | Primary key column |
-| `name_column` | Display name column |
-| `description_column` | Description column (nullable) |
-
-Each relation mapping specifies the edge source table with `src_column` and `dst_column`.
-
-### 3. Generate SQL and YAML artifacts
-
-```bash
+# Generate artifacts
 uv run --script scripts/generate_artifacts.py -- \
-  --classes-json /tmp/ontology_parsed/classes.json \
-  --relations-json /tmp/ontology_parsed/relations.json \
-  --mappings-json /path/to/my_mappings.json \
-  --database MY_DATABASE \
-  --schema MY_SCHEMA \
-  --ontology-name DOMAIN \
+  --classes-json /tmp/parsed/classes.json \
+  --relations-json /tmp/parsed/relations.json \
+  --mappings-json /path/to/mappings.json \
+  --database MY_DB --schema MY_SCHEMA --ontology-name MY_ONT \
   --output-dir /tmp/generated
-```
 
-Produces three files:
-
-| File | Contents |
-|---|---|
-| `01_metadata_tables.sql` | `CREATE TABLE` + idempotent `INSERT` for `ONT_CLASS`, `ONT_RELATION_DEF`, `ONT_CLASS_MAPPING`, `ONT_RELATION_MAPPING` |
-| `02_abstract_views.sql` | `CREATE OR REPLACE VIEW` for hierarchy views, per-class entity views, unified entity view, and stats views |
-| `03_ontology_semantic_model.yaml` | Cortex Analyst semantic model with verified queries for hierarchy traversal |
-
-### 4. Deploy to Snowflake
-
-Execute the generated SQL files in order, then create the semantic view:
-
-```sql
--- Run 01_metadata_tables.sql
--- Run 02_abstract_views.sql
-
-CREATE OR REPLACE SEMANTIC VIEW MY_DATABASE.MY_SCHEMA.DOMAIN_ONTOLOGY_SEMANTIC_VIEW
-  AS SEMANTIC MODEL '<contents of 03_ontology_semantic_model.yaml>';
-```
-
-### 5. Visualize (optional)
-
-```bash
+# Visualize
 uv run --script scripts/visualize_ontology.py -- \
-  --classes-json /tmp/ontology_parsed/classes.json \
-  --relations-json /tmp/ontology_parsed/relations.json \
+  --classes-json /tmp/parsed/classes.json \
+  --relations-json /tmp/parsed/relations.json \
   --semantic-model /tmp/generated/03_ontology_semantic_model.yaml
 ```
 
-The Streamlit app provides three tabs:
-
-- **Class Hierarchy** — expandable tree view with search and ancestry path display
-- **Ontology Graph** — force-directed graph with coverage-based coloring (green = mapped, blue = covered by ancestor, red = unmapped, gray = abstract)
-- **Coverage Matrix** — breakdown of mapped, covered, and unmapped classes with progress bar
+See `parse_owl.py --help`, `generate_artifacts.py --help` for all options including `--format`, `--exclude-deprecated`, and `--namespace-filter`.
 
 ## Architecture
 
