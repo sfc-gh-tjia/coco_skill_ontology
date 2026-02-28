@@ -1,0 +1,177 @@
+name: CL_PRISM_ONTOLOGY_SEMANTIC_VIEW
+description: CL_PRISM ontology hierarchy for dynamic traversal. Contains entity types and their subClassOf relationships.
+  Use for finding descendants, hierarchy paths, and entity lookups. For cohort expansion queries, use recursive CTEs on the
+  SUBCLASS_RELATIONS table.
+tables:
+- name: VW_ONT_CELLTYPE
+  base_table:
+    database: TEMP
+    schema: ONTOLOGY_POC
+    table: VW_ONT_CELLTYPE
+  primary_key:
+    columns:
+    - ID
+  dimensions:
+  - name: ID
+    expr: ID
+    data_type: VARCHAR
+    description: Unique identifier for CellType
+  - name: ENTITY_TYPE
+    expr: ENTITY_TYPE
+    data_type: VARCHAR
+  - name: LABEL
+    expr: LABEL
+    data_type: VARCHAR
+    description: Display name for CellType
+  - name: DESCRIPTION
+    expr: DESCRIPTION
+    data_type: VARCHAR
+- name: VW_ONT_ANATOMICALENTITY
+  base_table:
+    database: TEMP
+    schema: ONTOLOGY_POC
+    table: VW_ONT_ANATOMICALENTITY
+  primary_key:
+    columns:
+    - ID
+  dimensions:
+  - name: ID
+    expr: ID
+    data_type: VARCHAR
+    description: Unique identifier for AnatomicalEntity
+  - name: ENTITY_TYPE
+    expr: ENTITY_TYPE
+    data_type: VARCHAR
+  - name: LABEL
+    expr: LABEL
+    data_type: VARCHAR
+    description: Display name for AnatomicalEntity
+  - name: DESCRIPTION
+    expr: DESCRIPTION
+    data_type: VARCHAR
+- name: VW_ONT_TREATMENT
+  base_table:
+    database: TEMP
+    schema: ONTOLOGY_POC
+    table: VW_ONT_TREATMENT
+  primary_key:
+    columns:
+    - ID
+  dimensions:
+  - name: ID
+    expr: ID
+    data_type: VARCHAR
+    description: Unique identifier for Treatment
+  - name: ENTITY_TYPE
+    expr: ENTITY_TYPE
+    data_type: VARCHAR
+  - name: LABEL
+    expr: LABEL
+    data_type: VARCHAR
+    description: Display name for Treatment
+  - name: DESCRIPTION
+    expr: DESCRIPTION
+    data_type: VARCHAR
+- name: VW_ONT_CELLLINE
+  base_table:
+    database: TEMP
+    schema: ONTOLOGY_POC
+    table: VW_ONT_CELLLINE
+  primary_key:
+    columns:
+    - ID
+  dimensions:
+  - name: ID
+    expr: ID
+    data_type: VARCHAR
+    description: Unique identifier for CellLine
+  - name: ENTITY_TYPE
+    expr: ENTITY_TYPE
+    data_type: VARCHAR
+  - name: LABEL
+    expr: LABEL
+    data_type: VARCHAR
+    description: Display name for CellLine
+  - name: DESCRIPTION
+    expr: DESCRIPTION
+    data_type: VARCHAR
+- name: VW_ONT_VIABILITYMEASUREMENT
+  base_table:
+    database: TEMP
+    schema: ONTOLOGY_POC
+    table: VW_ONT_VIABILITYMEASUREMENT
+  primary_key:
+    columns:
+    - ID
+  dimensions:
+  - name: ID
+    expr: ID
+    data_type: VARCHAR
+    description: Unique identifier for ViabilityMeasurement
+  - name: ENTITY_TYPE
+    expr: ENTITY_TYPE
+    data_type: VARCHAR
+  - name: LABEL
+    expr: LABEL
+    data_type: VARCHAR
+    description: Display name for ViabilityMeasurement
+  - name: DESCRIPTION
+    expr: DESCRIPTION
+    data_type: VARCHAR
+- name: VW_ONT_SUBCLASS_OF
+  base_table:
+    database: TEMP
+    schema: ONTOLOGY_POC
+    table: VW_ONT_SUBCLASS_OF
+  dimensions:
+  - name: CHILD_ID
+    expr: CHILD_ID
+    data_type: VARCHAR
+  - name: PARENT_ID
+    expr: PARENT_ID
+    data_type: VARCHAR
+  - name: REL_TYPE
+    expr: REL_TYPE
+    data_type: VARCHAR
+  - name: CHILD_NAME
+    expr: CHILD_NAME
+    data_type: VARCHAR
+  - name: PARENT_NAME
+    expr: PARENT_NAME
+    data_type: VARCHAR
+  - name: CHILD_TYPE
+    expr: CHILD_TYPE
+    data_type: VARCHAR
+  - name: PARENT_TYPE
+    expr: PARENT_TYPE
+    data_type: VARCHAR
+verified_queries:
+- name: list_entity_types
+  question: What types of celltype exist in the ontology?
+  sql: SELECT ID, LABEL, DESCRIPTION FROM VW_ONT_CELLTYPE ORDER BY LABEL LIMIT 50
+  verified_at: 1771906762
+  verified_by: Ontology Semantic Modeler
+- name: direct_children
+  question: What are the direct children of a given entity?
+  sql: SELECT CHILD_ID, CHILD_NAME FROM VW_ONT_SUBCLASS_OF WHERE PARENT_NAME = '{entity_name}' ORDER BY CHILD_NAME
+  verified_at: 1771906762
+  verified_by: Ontology Semantic Modeler
+- name: direct_parents
+  question: What are the parents of a given entity?
+  sql: SELECT PARENT_ID, PARENT_NAME FROM VW_ONT_SUBCLASS_OF WHERE CHILD_NAME = '{entity_name}' ORDER BY PARENT_NAME
+  verified_at: 1771906762
+  verified_by: Ontology Semantic Modeler
+- name: descendants_recursive
+  question: What are all descendants of a given entity?
+  sql: "WITH RECURSIVE descendants AS (\n  SELECT ID AS NODE_ID, LABEL AS NODE_NAME, 0 AS depth\n  FROM VW_ONT_CELLTYPE WHERE\
+    \ LABEL = '{entity_name}'\n  UNION ALL\n  SELECT c.CHILD_ID, c.CHILD_NAME, d.depth + 1\n  FROM VW_ONT_SUBCLASS_OF c\n\
+    \  JOIN descendants d ON c.PARENT_ID = d.NODE_ID\n  WHERE d.depth < 10\n)\nSELECT NODE_ID, NODE_NAME, depth FROM descendants\
+    \ ORDER BY depth, NODE_NAME"
+  verified_at: 1771906762
+  verified_by: Ontology Semantic Modeler
+- name: most_children
+  question: Which entities have the most direct children?
+  sql: SELECT PARENT_NAME, COUNT(DISTINCT CHILD_ID) AS child_count FROM VW_ONT_SUBCLASS_OF GROUP BY PARENT_NAME ORDER BY child_count
+    DESC LIMIT 20
+  verified_at: 1771906762
+  verified_by: Ontology Semantic Modeler

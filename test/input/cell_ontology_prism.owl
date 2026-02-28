@@ -1,0 +1,287 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://purl.obolibrary.org/obo/cl#"
+     xml:base="http://purl.obolibrary.org/obo/cl"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22/rdf-syntax-ns#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+
+    <owl:Ontology rdf:about="http://purl.obolibrary.org/obo/cl"
+        rdfs:label="Cell Ontology - PRISM Subset"
+        rdfs:comment="A subset of the Cell Ontology (CL) covering cell types relevant to the PRISM drug repurposing dataset. Models the is-a hierarchy from generic cell types down to tissue-specific types that map to PRISM PRIMARY_TISSUE values."/>
+
+    <!-- ============================================================ -->
+    <!-- Object Properties                                             -->
+    <!-- ============================================================ -->
+
+    <owl:ObjectProperty rdf:about="#subClassOf">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
+        <rdfs:label>subClassOf</rdfs:label>
+        <rdfs:comment>Taxonomic subsumption (is-a hierarchy). A subClassOf B means every instance of A is also an instance of B.</rdfs:comment>
+        <rdfs:domain rdf:resource="#Thing"/>
+        <rdfs:range rdf:resource="#Thing"/>
+        <owl:inverseOf rdf:resource="#hasSubClass"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasSubClass">
+        <rdfs:label>hasSubClass</rdfs:label>
+        <rdfs:comment>Inverse of subClassOf.</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#derives_from">
+        <rdfs:label>derives_from</rdfs:label>
+        <rdfs:comment>Maps a tissue type to a cell ontology class. Used to bridge PRISM PRIMARY_TISSUE values to the Cell Ontology hierarchy.</rdfs:comment>
+        <rdfs:domain rdf:resource="#Tissue"/>
+        <rdfs:range rdf:resource="#CellType"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#part_of">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
+        <rdfs:label>part_of</rdfs:label>
+        <rdfs:comment>Anatomical containment. X part_of Y means X is a structural component of Y.</rdfs:comment>
+        <rdfs:domain rdf:resource="#AnatomicalEntity"/>
+        <rdfs:range rdf:resource="#AnatomicalEntity"/>
+    </owl:ObjectProperty>
+
+    <!-- ============================================================ -->
+    <!-- Top-level Abstract Classes                                    -->
+    <!-- ============================================================ -->
+
+    <owl:Class rdf:about="#Thing">
+        <rdfs:label>Thing</rdfs:label>
+        <rdfs:comment>Root class of all entities.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="#BiomedicalEntity">
+        <rdfs:subClassOf rdf:resource="#Thing"/>
+        <rdfs:label>BiomedicalEntity</rdfs:label>
+        <rdfs:comment>Abstract superclass for all biomedical domain concepts.</rdfs:comment>
+    </owl:Class>
+
+    <!-- ============================================================ -->
+    <!-- Cell Type Hierarchy                                           -->
+    <!-- ============================================================ -->
+
+    <owl:Class rdf:about="#CellType">
+        <rdfs:subClassOf rdf:resource="#BiomedicalEntity"/>
+        <rdfs:label>CellType</rdfs:label>
+        <rdfs:comment>A cell type defined in the Cell Ontology (CL). Represents a class of cells sharing common characteristics.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Level 2: Major cell lineages -->
+
+    <owl:Class rdf:about="#EpithelialCell">
+        <rdfs:subClassOf rdf:resource="#CellType"/>
+        <rdfs:label>epithelial cell</rdfs:label>
+        <rdfs:comment>A cell that is usually found in a two-dimensional sheet with a free surface. Epithelial cells line body surfaces and cavities.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="#NeuralCell">
+        <rdfs:subClassOf rdf:resource="#CellType"/>
+        <rdfs:label>neural cell</rdfs:label>
+        <rdfs:comment>A cell that is part of the nervous system.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="#ConnectiveTissueCell">
+        <rdfs:subClassOf rdf:resource="#CellType"/>
+        <rdfs:label>connective tissue cell</rdfs:label>
+        <rdfs:comment>A cell that is part of connective tissue.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="#Leukocyte">
+        <rdfs:subClassOf rdf:resource="#CellType"/>
+        <rdfs:label>leukocyte</rdfs:label>
+        <rdfs:comment>An achromatic cell of the myeloid or lymphoid lineages capable of ameboid movement, found in blood or other tissue.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="#SecretoryCell">
+        <rdfs:subClassOf rdf:resource="#CellType"/>
+        <rdfs:label>secretory cell</rdfs:label>
+        <rdfs:comment>A cell whose primary function is the production and release of substances.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="#ProgenitorCell">
+        <rdfs:subClassOf rdf:resource="#CellType"/>
+        <rdfs:label>progenitor cell</rdfs:label>
+        <rdfs:comment>A cell that retains the ability to divide and can differentiate into a limited range of cell types.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Level 3: Sub-lineages of epithelial cells -->
+
+    <owl:Class rdf:about="#GlandularEpithelialCell">
+        <rdfs:subClassOf rdf:resource="#EpithelialCell"/>
+        <rdfs:label>glandular epithelial cell</rdfs:label>
+        <rdfs:comment>An epithelial cell that is part of a gland and is specialized for secretion.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="#SquamousEpithelialCell">
+        <rdfs:subClassOf rdf:resource="#EpithelialCell"/>
+        <rdfs:label>squamous epithelial cell</rdfs:label>
+        <rdfs:comment>A flat, scale-like epithelial cell found lining surfaces subject to abrasion.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Level 3: Sub-lineages of connective tissue cells -->
+
+    <owl:Class rdf:about="#Fibroblast">
+        <rdfs:subClassOf rdf:resource="#ConnectiveTissueCell"/>
+        <rdfs:label>fibroblast</rdfs:label>
+        <rdfs:comment>A connective tissue cell which secretes an extracellular matrix rich in collagen and other macromolecules.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="#Osteoblast">
+        <rdfs:subClassOf rdf:resource="#ConnectiveTissueCell"/>
+        <rdfs:label>osteoblast</rdfs:label>
+        <rdfs:comment>A bone-forming cell which secretes the organic matrix of bone (osteoid).</rdfs:comment>
+    </owl:Class>
+
+    <!-- Level 3: Sub-lineages of leukocyte -->
+
+    <owl:Class rdf:about="#MyeloidCell">
+        <rdfs:subClassOf rdf:resource="#Leukocyte"/>
+        <rdfs:label>myeloid cell</rdfs:label>
+        <rdfs:comment>A cell of the myeloid lineage, including granulocytes, monocytes, macrophages, and dendritic cells.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="#Lymphocyte">
+        <rdfs:subClassOf rdf:resource="#Leukocyte"/>
+        <rdfs:label>lymphocyte</rdfs:label>
+        <rdfs:comment>A cell of the lymphoid lineage including T cells, B cells, and NK cells.</rdfs:comment>
+    </owl:Class>
+
+    <!-- ============================================================ -->
+    <!-- Tissue-Specific Cell Types (Concrete - map to PRISM tissues)  -->
+    <!-- ============================================================ -->
+
+    <!-- Lung -->
+    <owl:Class rdf:about="#LungEpithelialCell">
+        <rdfs:subClassOf rdf:resource="#EpithelialCell"/>
+        <rdfs:label>lung epithelial cell</rdfs:label>
+        <rdfs:comment>An epithelial cell of the lung. Maps to PRISM PRIMARY_TISSUE='lung'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Breast -->
+    <owl:Class rdf:about="#BreastEpithelialCell">
+        <rdfs:subClassOf rdf:resource="#GlandularEpithelialCell"/>
+        <rdfs:label>breast epithelial cell</rdfs:label>
+        <rdfs:comment>An epithelial cell of the mammary gland. Maps to PRISM PRIMARY_TISSUE='breast'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Liver -->
+    <owl:Class rdf:about="#Hepatocyte">
+        <rdfs:subClassOf rdf:resource="#GlandularEpithelialCell"/>
+        <rdfs:label>hepatocyte</rdfs:label>
+        <rdfs:comment>The main structural component of the liver. Maps to PRISM PRIMARY_TISSUE='liver'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Pancreas -->
+    <owl:Class rdf:about="#PancreaticEpithelialCell">
+        <rdfs:subClassOf rdf:resource="#GlandularEpithelialCell"/>
+        <rdfs:label>pancreatic epithelial cell</rdfs:label>
+        <rdfs:comment>An epithelial cell of the pancreas. Maps to PRISM PRIMARY_TISSUE='pancreas'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Ovary -->
+    <owl:Class rdf:about="#OvarianEpithelialCell">
+        <rdfs:subClassOf rdf:resource="#EpithelialCell"/>
+        <rdfs:label>ovarian epithelial cell</rdfs:label>
+        <rdfs:comment>An epithelial cell of the ovary. Maps to PRISM PRIMARY_TISSUE='ovary'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Skin -->
+    <owl:Class rdf:about="#Melanocyte">
+        <rdfs:subClassOf rdf:resource="#NeuralCell"/>
+        <rdfs:label>melanocyte</rdfs:label>
+        <rdfs:comment>A pigment cell derived from the neural crest. Maps to PRISM PRIMARY_TISSUE='skin'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Thyroid -->
+    <owl:Class rdf:about="#ThyroidEpithelialCell">
+        <rdfs:subClassOf rdf:resource="#GlandularEpithelialCell"/>
+        <rdfs:label>thyroid epithelial cell</rdfs:label>
+        <rdfs:comment>An epithelial cell of the thyroid gland. Maps to PRISM PRIMARY_TISSUE='thyroid'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Kidney -->
+    <owl:Class rdf:about="#KidneyEpithelialCell">
+        <rdfs:subClassOf rdf:resource="#EpithelialCell"/>
+        <rdfs:label>kidney epithelial cell</rdfs:label>
+        <rdfs:comment>An epithelial cell of the kidney. Maps to PRISM PRIMARY_TISSUE='kidney'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Colorectal -->
+    <owl:Class rdf:about="#ColonicEpithelialCell">
+        <rdfs:subClassOf rdf:resource="#EpithelialCell"/>
+        <rdfs:label>colonic epithelial cell</rdfs:label>
+        <rdfs:comment>An epithelial cell of the colon. Maps to PRISM PRIMARY_TISSUE='colorectal'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Gastric -->
+    <owl:Class rdf:about="#GastricEpithelialCell">
+        <rdfs:subClassOf rdf:resource="#GlandularEpithelialCell"/>
+        <rdfs:label>gastric epithelial cell</rdfs:label>
+        <rdfs:comment>An epithelial cell of the stomach. Maps to PRISM PRIMARY_TISSUE='gastric'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Esophagus -->
+    <owl:Class rdf:about="#EsophagealEpithelialCell">
+        <rdfs:subClassOf rdf:resource="#SquamousEpithelialCell"/>
+        <rdfs:label>esophageal epithelial cell</rdfs:label>
+        <rdfs:comment>A squamous epithelial cell of the esophagus. Maps to PRISM PRIMARY_TISSUE='esophagus'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Uterus -->
+    <owl:Class rdf:about="#UterineEpithelialCell">
+        <rdfs:subClassOf rdf:resource="#EpithelialCell"/>
+        <rdfs:label>uterine epithelial cell</rdfs:label>
+        <rdfs:comment>An epithelial cell of the uterus. Maps to PRISM PRIMARY_TISSUE='uterus'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Bone -->
+    <owl:Class rdf:about="#OsteosarcomaCell">
+        <rdfs:subClassOf rdf:resource="#Osteoblast"/>
+        <rdfs:label>osteosarcoma cell</rdfs:label>
+        <rdfs:comment>A malignant osteoblast-derived cell. Maps to PRISM PRIMARY_TISSUE='bone'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Central Nervous System -->
+    <owl:Class rdf:about="#NeuralCrestCell">
+        <rdfs:subClassOf rdf:resource="#NeuralCell"/>
+        <rdfs:label>neural crest cell</rdfs:label>
+        <rdfs:comment>A cell derived from the neural crest that migrates to various tissues. Maps to PRISM PRIMARY_TISSUE='central_nervous_system'.</rdfs:comment>
+    </owl:Class>
+
+    <!-- ============================================================ -->
+    <!-- Non-Cell-Type Classes (for completeness)                      -->
+    <!-- ============================================================ -->
+
+    <owl:Class rdf:about="#AnatomicalEntity">
+        <rdfs:subClassOf rdf:resource="#BiomedicalEntity"/>
+        <rdfs:label>AnatomicalEntity</rdfs:label>
+        <rdfs:comment>An anatomical structure or region in the body.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="#Tissue">
+        <rdfs:subClassOf rdf:resource="#AnatomicalEntity"/>
+        <rdfs:label>Tissue</rdfs:label>
+        <rdfs:comment>A tissue type that maps to PRISM PRIMARY_TISSUE values.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="#Treatment">
+        <rdfs:subClassOf rdf:resource="#BiomedicalEntity"/>
+        <rdfs:label>Treatment</rdfs:label>
+        <rdfs:comment>A drug or compound used in the PRISM drug screen.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="#CellLine">
+        <rdfs:subClassOf rdf:resource="#BiomedicalEntity"/>
+        <rdfs:label>CellLine</rdfs:label>
+        <rdfs:comment>A cancer cell line used in the PRISM drug screen.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="#ViabilityMeasurement">
+        <rdfs:subClassOf rdf:resource="#BiomedicalEntity"/>
+        <rdfs:label>ViabilityMeasurement</rdfs:label>
+        <rdfs:comment>A drug efficacy measurement (logfold change) from the PRISM screen.</rdfs:comment>
+    </owl:Class>
+
+</rdf:RDF>

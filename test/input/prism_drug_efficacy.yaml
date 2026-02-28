@@ -1,0 +1,311 @@
+name: PRISM_DRUG_EFFICACY
+description: >
+  PRISM drug repurposing dataset containing cancer cell line viability responses
+  to drug treatments. Contains efficacy measurements (logfold change) across 588
+  cancer cell lines and 4686 drugs from the Broad Institute. Use to analyze drug
+  effectiveness by tissue type, mechanism of action, and clinical phase.
+  Key concepts:
+  - Logfold change: More negative values indicate stronger cell killing (more effective drug)
+  - Tissue: Cancer type/origin (lung, breast, liver, etc.)
+  - MOA: Mechanism of action (how the drug works)
+  - Target: Gene(s) the drug acts on
+
+tables:
+  - name: TREATMENTS
+    base_table:
+      database: TEMP
+      schema: ONTOLOGY_POC
+      table: PRISM_TREATMENTS
+    primary_key:
+      columns: [COLUMN_NAME]
+    description: >
+      Drug/compound information including mechanism of action, gene targets,
+      clinical phase, and chemical structure. Each row is a unique drug-dose
+      combination tested in the screen.
+    dimensions:
+      - name: COLUMN_NAME
+        expr: COLUMN_NAME
+        data_type: VARCHAR
+        description: Unique identifier for drug-dose combination (join key to viability data)
+      - name: BROAD_ID
+        expr: BROAD_ID
+        data_type: VARCHAR
+        synonyms: [compound id, drug id]
+        description: Broad Institute compound identifier
+      - name: NAME
+        expr: NAME
+        data_type: VARCHAR
+        synonyms: [drug name, compound name, drug, compound, treatment]
+        description: Drug/compound name
+      - name: MOA
+        expr: MOA
+        data_type: VARCHAR
+        synonyms: [mechanism of action, mechanism, drug class, drug type]
+        description: Mechanism of action - how the drug works (e.g., kinase inhibitor, BCL inhibitor, HDAC inhibitor)
+        sample_values: [kinase inhibitor, BCL inhibitor, HDAC inhibitor, PI3K inhibitor, Aurora kinase inhibitor]
+      - name: TARGET
+        expr: TARGET
+        data_type: VARCHAR
+        synonyms: [gene target, target gene, protein target]
+        description: Gene target(s) of the drug
+        sample_values: [EGFR, BCL2, JAK1, AURKA, PIK3CA]
+      - name: PHASE
+        expr: PHASE
+        data_type: VARCHAR
+        synonyms: [clinical phase, development stage, approval status]
+        description: Clinical development phase (Preclinical, Phase 1, Phase 2, Phase 3, Launched)
+        sample_values: [Preclinical, Phase 1, Phase 2, Phase 3, Launched]
+      - name: DISEASE_AREA
+        expr: DISEASE_AREA
+        data_type: VARCHAR
+        description: Therapeutic disease area
+      - name: INDICATION
+        expr: INDICATION
+        data_type: VARCHAR
+        description: Specific disease indication for the drug
+      - name: SMILES
+        expr: SMILES
+        data_type: VARCHAR
+        description: Chemical structure in SMILES notation
+      - name: SCREEN_ID
+        expr: SCREEN_ID
+        data_type: VARCHAR
+        description: Identifier for the screening experiment
+    facts:
+      - name: DOSE
+        expr: DOSE
+        data_type: FLOAT
+        synonyms: [concentration, drug dose]
+        description: Drug concentration/dose used in the screen (micromolar)
+    filters:
+      - name: launched_drugs
+        synonyms: [approved drugs, marketed drugs]
+        description: Filter to only approved/launched drugs
+        expr: "PHASE = 'Launched'"
+      - name: clinical_phase_drugs
+        synonyms: [clinical trial drugs, drugs in trials]
+        description: Filter to drugs in clinical trials (Phase 1, 2, or 3)
+        expr: "PHASE IN ('Phase 1', 'Phase 2', 'Phase 3', 'Phase 1/Phase 2')"
+      - name: kinase_inhibitors
+        synonyms: [kinase drugs]
+        description: Filter to kinase inhibitor drugs
+        expr: "MOA ILIKE '%kinase inhibitor%'"
+      - name: bcl_inhibitors
+        synonyms: [apoptosis inhibitors]
+        description: Filter to BCL family inhibitors (apoptosis pathway)
+        expr: "MOA ILIKE '%BCL%'"
+
+  - name: CELL_LINES
+    base_table:
+      database: TEMP
+      schema: ONTOLOGY_POC
+      table: PRISM_CELL_LINES
+    primary_key:
+      columns: [ROW_NAME]
+    description: >
+      Cancer cell line metadata including tissue of origin. Each row is a unique
+      cell line used in the drug screen. Tissue indicates the cancer type.
+    dimensions:
+      - name: ROW_NAME
+        expr: ROW_NAME
+        data_type: VARCHAR
+        description: Unique identifier for cell line (join key to viability data)
+      - name: DEPMAP_ID
+        expr: DEPMAP_ID
+        data_type: VARCHAR
+        synonyms: [depmap identifier]
+        description: DepMap database identifier for the cell line
+      - name: CCLE_NAME
+        expr: CCLE_NAME
+        data_type: VARCHAR
+        synonyms: [cell line name, cell line, cancer cell line]
+        description: Cancer Cell Line Encyclopedia name
+      - name: PRIMARY_TISSUE
+        expr: PRIMARY_TISSUE
+        data_type: VARCHAR
+        synonyms: [tissue, tissue type, cancer type, tumor type, organ]
+        description: Primary tissue/cancer type of origin (e.g., lung, breast, liver, pancreas)
+        sample_values: [lung, breast, liver, pancreas, ovary, skin, central_nervous_system, colorectal]
+      - name: SECONDARY_TISSUE
+        expr: SECONDARY_TISSUE
+        data_type: VARCHAR
+        synonyms: [tissue subtype]
+        description: Secondary tissue classification (more specific subtype)
+      - name: TERTIARY_TISSUE
+        expr: TERTIARY_TISSUE
+        data_type: VARCHAR
+        description: Tertiary tissue classification (most specific subtype)
+    filters:
+      - name: lung_cancer
+        synonyms: [lung cell lines, lung tumors]
+        description: Filter to lung cancer cell lines
+        expr: "PRIMARY_TISSUE = 'lung'"
+      - name: breast_cancer
+        synonyms: [breast cell lines, breast tumors]
+        description: Filter to breast cancer cell lines
+        expr: "PRIMARY_TISSUE = 'breast'"
+      - name: liver_cancer
+        synonyms: [liver cell lines, hepatocellular]
+        description: Filter to liver cancer cell lines
+        expr: "PRIMARY_TISSUE = 'liver'"
+
+  - name: VIABILITY
+    base_table:
+      database: TEMP
+      schema: ONTOLOGY_POC
+      table: PRISM_VIABILITY
+    description: >
+      Drug efficacy measurements - logfold change values indicating cell viability
+      response to drug treatment. More negative values indicate stronger cell killing
+      (more effective drug). This is the main fact table linking drugs to cell lines.
+    dimensions:
+      - name: ROW_NAME
+        expr: ROW_NAME
+        data_type: VARCHAR
+        description: Cell line identifier (foreign key to CELL_LINES)
+      - name: COLUMN_NAME
+        expr: COLUMN_NAME
+        data_type: VARCHAR
+        description: Drug-dose combination identifier (foreign key to TREATMENTS)
+    facts:
+      - name: LOGFOLD_CHANGE
+        expr: LOGFOLD_CHANGE
+        data_type: FLOAT
+        synonyms: [efficacy, response, viability, cell killing, drug response]
+        description: >
+          Log fold change in cell viability. More negative values indicate stronger
+          cell killing (drug is more effective). Values near 0 indicate no effect.
+          Typical range: -7 (very effective) to +2 (promotes growth).
+    metrics:
+      - name: AVG_EFFICACY
+        expr: AVG(LOGFOLD_CHANGE)
+        data_type: FLOAT
+        synonyms: [average efficacy, mean response, average response]
+        description: Average logfold change (more negative = more effective)
+      - name: BEST_RESPONSE
+        expr: MIN(LOGFOLD_CHANGE)
+        data_type: FLOAT
+        synonyms: [best efficacy, strongest response, maximum killing]
+        description: Most negative logfold change (best drug response)
+      - name: CELL_LINES_TESTED
+        expr: COUNT(DISTINCT ROW_NAME)
+        data_type: NUMBER
+        synonyms: [cell line count, number of cell lines]
+        description: Number of distinct cell lines tested
+      - name: DRUGS_TESTED
+        expr: COUNT(DISTINCT COLUMN_NAME)
+        data_type: NUMBER
+        synonyms: [drug count, number of drugs]
+        description: Number of distinct drugs tested
+      - name: MEASUREMENTS
+        expr: COUNT(*)
+        data_type: NUMBER
+        synonyms: [data points, observations]
+        description: Total number of drug-cell line measurements
+      - name: RESPONSE_VARIABILITY
+        expr: STDDEV(LOGFOLD_CHANGE)
+        data_type: FLOAT
+        synonyms: [variability, consistency]
+        description: Standard deviation of responses (lower = more consistent)
+
+relationships:
+  - name: viability_to_treatments
+    left_table: VIABILITY
+    right_table: TREATMENTS
+    relationship_columns:
+      - left_column: COLUMN_NAME
+        right_column: COLUMN_NAME
+    relationship_type: many_to_one
+    join_type: inner
+  - name: viability_to_cell_lines
+    left_table: VIABILITY
+    right_table: CELL_LINES
+    relationship_columns:
+      - left_column: ROW_NAME
+        right_column: ROW_NAME
+    relationship_type: many_to_one
+    join_type: inner
+
+verified_queries:
+  - name: effective_drugs_by_tissue
+    question: Which drugs are most effective against lung cancer?
+    sql: |
+      SELECT
+        t.NAME as drug_name,
+        t.MOA,
+        t.TARGET,
+        AVG(v.LOGFOLD_CHANGE) as avg_efficacy,
+        MIN(v.LOGFOLD_CHANGE) as best_response,
+        COUNT(DISTINCT c.ROW_NAME) as cell_lines_tested
+      FROM TEMP.ONTOLOGY_POC.PRISM_VIABILITY v
+      JOIN TEMP.ONTOLOGY_POC.PRISM_TREATMENTS t ON v.COLUMN_NAME = t.COLUMN_NAME
+      JOIN TEMP.ONTOLOGY_POC.PRISM_CELL_LINES c ON v.ROW_NAME = c.ROW_NAME
+      WHERE c.PRIMARY_TISSUE = 'lung'
+      GROUP BY t.NAME, t.MOA, t.TARGET
+      HAVING COUNT(DISTINCT c.ROW_NAME) >= 10
+      ORDER BY avg_efficacy ASC
+      LIMIT 20
+  - name: moa_efficacy_comparison
+    question: What is the average efficacy by mechanism of action?
+    sql: |
+      SELECT
+        t.MOA,
+        COUNT(DISTINCT t.NAME) as drug_count,
+        AVG(v.LOGFOLD_CHANGE) as avg_efficacy,
+        MIN(v.LOGFOLD_CHANGE) as best_response
+      FROM TEMP.ONTOLOGY_POC.PRISM_VIABILITY v
+      JOIN TEMP.ONTOLOGY_POC.PRISM_TREATMENTS t ON v.COLUMN_NAME = t.COLUMN_NAME
+      WHERE t.MOA IS NOT NULL AND t.MOA != 'NA'
+      GROUP BY t.MOA
+      ORDER BY avg_efficacy ASC
+      LIMIT 20
+  - name: tissue_sensitivity
+    question: Which tissues are most sensitive to drug treatment?
+    sql: |
+      SELECT
+        c.PRIMARY_TISSUE as tissue,
+        COUNT(DISTINCT c.ROW_NAME) as cell_line_count,
+        AVG(v.LOGFOLD_CHANGE) as avg_response,
+        MIN(v.LOGFOLD_CHANGE) as best_response
+      FROM TEMP.ONTOLOGY_POC.PRISM_VIABILITY v
+      JOIN TEMP.ONTOLOGY_POC.PRISM_CELL_LINES c ON v.ROW_NAME = c.ROW_NAME
+      WHERE c.PRIMARY_TISSUE IS NOT NULL AND c.PRIMARY_TISSUE != 'NA'
+      GROUP BY c.PRIMARY_TISSUE
+      ORDER BY avg_response ASC
+  - name: kinase_inhibitors_lung
+    question: How effective are kinase inhibitors against lung cancer?
+    sql: |
+      SELECT
+        t.NAME as drug_name,
+        t.MOA,
+        t.TARGET,
+        t.PHASE,
+        AVG(v.LOGFOLD_CHANGE) as avg_efficacy,
+        COUNT(DISTINCT c.ROW_NAME) as cell_lines_tested
+      FROM TEMP.ONTOLOGY_POC.PRISM_VIABILITY v
+      JOIN TEMP.ONTOLOGY_POC.PRISM_TREATMENTS t ON v.COLUMN_NAME = t.COLUMN_NAME
+      JOIN TEMP.ONTOLOGY_POC.PRISM_CELL_LINES c ON v.ROW_NAME = c.ROW_NAME
+      WHERE c.PRIMARY_TISSUE = 'lung'
+        AND t.MOA ILIKE '%kinase inhibitor%'
+      GROUP BY t.NAME, t.MOA, t.TARGET, t.PHASE
+      HAVING COUNT(DISTINCT c.ROW_NAME) >= 10
+      ORDER BY avg_efficacy ASC
+      LIMIT 20
+  - name: launched_drugs_efficacy
+    question: Which approved drugs show the best efficacy?
+    sql: |
+      SELECT
+        t.NAME as drug_name,
+        t.MOA,
+        t.TARGET,
+        AVG(v.LOGFOLD_CHANGE) as avg_efficacy,
+        COUNT(DISTINCT c.ROW_NAME) as cell_lines_tested,
+        COUNT(DISTINCT c.PRIMARY_TISSUE) as tissues_tested
+      FROM TEMP.ONTOLOGY_POC.PRISM_VIABILITY v
+      JOIN TEMP.ONTOLOGY_POC.PRISM_TREATMENTS t ON v.COLUMN_NAME = t.COLUMN_NAME
+      JOIN TEMP.ONTOLOGY_POC.PRISM_CELL_LINES c ON v.ROW_NAME = c.ROW_NAME
+      WHERE t.PHASE = 'Launched'
+      GROUP BY t.NAME, t.MOA, t.TARGET
+      HAVING COUNT(DISTINCT c.ROW_NAME) >= 50
+      ORDER BY avg_efficacy ASC
+      LIMIT 20

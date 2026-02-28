@@ -1,0 +1,78 @@
+[
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#derives_from",
+    "name": "derives_from",
+    "label": "derives_from",
+    "description": "Maps a tissue type to a cell ontology class. Used to bridge PRISM PRIMARY_TISSUE values to the Cell Ontology hierarchy.",
+    "domain_classes": [
+      "Tissue"
+    ],
+    "domain_class": "Tissue",
+    "range_classes": [
+      "CellType"
+    ],
+    "range_class": "CellType",
+    "is_transitive": false,
+    "is_symmetric": false,
+    "is_functional": false,
+    "is_hierarchical": false,
+    "inverse_name": null,
+    "cardinality": "N:N"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#hasSubClass",
+    "name": "hasSubClass",
+    "label": "hasSubClass",
+    "description": "Inverse of subClassOf.",
+    "domain_classes": [],
+    "domain_class": "Thing",
+    "range_classes": [],
+    "range_class": "Thing",
+    "is_transitive": false,
+    "is_symmetric": false,
+    "is_functional": false,
+    "is_hierarchical": false,
+    "inverse_name": null,
+    "cardinality": "N:N"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#part_of",
+    "name": "part_of",
+    "label": "part_of",
+    "description": "Anatomical containment. X part_of Y means X is a structural component of Y.",
+    "domain_classes": [
+      "AnatomicalEntity"
+    ],
+    "domain_class": "AnatomicalEntity",
+    "range_classes": [
+      "AnatomicalEntity"
+    ],
+    "range_class": "AnatomicalEntity",
+    "is_transitive": true,
+    "is_symmetric": false,
+    "is_functional": false,
+    "is_hierarchical": true,
+    "inverse_name": null,
+    "cardinality": "N:N"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#subClassOf",
+    "name": "subClassOf",
+    "label": "subClassOf",
+    "description": "Taxonomic subsumption (is-a hierarchy). A subClassOf B means every instance of A is also an instance of B.",
+    "domain_classes": [
+      "Thing"
+    ],
+    "domain_class": "Thing",
+    "range_classes": [
+      "Thing"
+    ],
+    "range_class": "Thing",
+    "is_transitive": true,
+    "is_symmetric": false,
+    "is_functional": false,
+    "is_hierarchical": true,
+    "inverse_name": "hasSubClass",
+    "cardinality": "N:N"
+  }
+]

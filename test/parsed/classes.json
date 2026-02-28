@@ -1,0 +1,442 @@
+[
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#AnatomicalEntity",
+    "name": "AnatomicalEntity",
+    "label": "AnatomicalEntity",
+    "description": "An anatomical structure or region in the body.",
+    "parent_names": [
+      "BiomedicalEntity"
+    ],
+    "parent_name": "BiomedicalEntity",
+    "is_abstract": true,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#BiomedicalEntity",
+    "name": "BiomedicalEntity",
+    "label": "BiomedicalEntity",
+    "description": "Abstract superclass for all biomedical domain concepts.",
+    "parent_names": [
+      "Thing"
+    ],
+    "parent_name": "Thing",
+    "is_abstract": true,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#BreastEpithelialCell",
+    "name": "BreastEpithelialCell",
+    "label": "breast epithelial cell",
+    "description": "An epithelial cell of the mammary gland. Maps to PRISM PRIMARY_TISSUE='breast'.",
+    "parent_names": [
+      "GlandularEpithelialCell"
+    ],
+    "parent_name": "GlandularEpithelialCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#CellLine",
+    "name": "CellLine",
+    "label": "CellLine",
+    "description": "A cancer cell line used in the PRISM drug screen.",
+    "parent_names": [
+      "BiomedicalEntity"
+    ],
+    "parent_name": "BiomedicalEntity",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#CellType",
+    "name": "CellType",
+    "label": "CellType",
+    "description": "A cell type defined in the Cell Ontology (CL). Represents a class of cells sharing common characteristics.",
+    "parent_names": [
+      "BiomedicalEntity"
+    ],
+    "parent_name": "BiomedicalEntity",
+    "is_abstract": true,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#ColonicEpithelialCell",
+    "name": "ColonicEpithelialCell",
+    "label": "colonic epithelial cell",
+    "description": "An epithelial cell of the colon. Maps to PRISM PRIMARY_TISSUE='colorectal'.",
+    "parent_names": [
+      "EpithelialCell"
+    ],
+    "parent_name": "EpithelialCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#ConnectiveTissueCell",
+    "name": "ConnectiveTissueCell",
+    "label": "connective tissue cell",
+    "description": "A cell that is part of connective tissue.",
+    "parent_names": [
+      "CellType"
+    ],
+    "parent_name": "CellType",
+    "is_abstract": true,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#EpithelialCell",
+    "name": "EpithelialCell",
+    "label": "epithelial cell",
+    "description": "A cell that is usually found in a two-dimensional sheet with a free surface. Epithelial cells line body surfaces and cavities.",
+    "parent_names": [
+      "CellType"
+    ],
+    "parent_name": "CellType",
+    "is_abstract": true,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#EsophagealEpithelialCell",
+    "name": "EsophagealEpithelialCell",
+    "label": "esophageal epithelial cell",
+    "description": "A squamous epithelial cell of the esophagus. Maps to PRISM PRIMARY_TISSUE='esophagus'.",
+    "parent_names": [
+      "SquamousEpithelialCell"
+    ],
+    "parent_name": "SquamousEpithelialCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#Fibroblast",
+    "name": "Fibroblast",
+    "label": "fibroblast",
+    "description": "A connective tissue cell which secretes an extracellular matrix rich in collagen and other macromolecules.",
+    "parent_names": [
+      "ConnectiveTissueCell"
+    ],
+    "parent_name": "ConnectiveTissueCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#GastricEpithelialCell",
+    "name": "GastricEpithelialCell",
+    "label": "gastric epithelial cell",
+    "description": "An epithelial cell of the stomach. Maps to PRISM PRIMARY_TISSUE='gastric'.",
+    "parent_names": [
+      "GlandularEpithelialCell"
+    ],
+    "parent_name": "GlandularEpithelialCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#GlandularEpithelialCell",
+    "name": "GlandularEpithelialCell",
+    "label": "glandular epithelial cell",
+    "description": "An epithelial cell that is part of a gland and is specialized for secretion.",
+    "parent_names": [
+      "EpithelialCell"
+    ],
+    "parent_name": "EpithelialCell",
+    "is_abstract": true,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#Hepatocyte",
+    "name": "Hepatocyte",
+    "label": "hepatocyte",
+    "description": "The main structural component of the liver. Maps to PRISM PRIMARY_TISSUE='liver'.",
+    "parent_names": [
+      "GlandularEpithelialCell"
+    ],
+    "parent_name": "GlandularEpithelialCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#KidneyEpithelialCell",
+    "name": "KidneyEpithelialCell",
+    "label": "kidney epithelial cell",
+    "description": "An epithelial cell of the kidney. Maps to PRISM PRIMARY_TISSUE='kidney'.",
+    "parent_names": [
+      "EpithelialCell"
+    ],
+    "parent_name": "EpithelialCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#Leukocyte",
+    "name": "Leukocyte",
+    "label": "leukocyte",
+    "description": "An achromatic cell of the myeloid or lymphoid lineages capable of ameboid movement, found in blood or other tissue.",
+    "parent_names": [
+      "CellType"
+    ],
+    "parent_name": "CellType",
+    "is_abstract": true,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#LungEpithelialCell",
+    "name": "LungEpithelialCell",
+    "label": "lung epithelial cell",
+    "description": "An epithelial cell of the lung. Maps to PRISM PRIMARY_TISSUE='lung'.",
+    "parent_names": [
+      "EpithelialCell"
+    ],
+    "parent_name": "EpithelialCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#Lymphocyte",
+    "name": "Lymphocyte",
+    "label": "lymphocyte",
+    "description": "A cell of the lymphoid lineage including T cells, B cells, and NK cells.",
+    "parent_names": [
+      "Leukocyte"
+    ],
+    "parent_name": "Leukocyte",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#Melanocyte",
+    "name": "Melanocyte",
+    "label": "melanocyte",
+    "description": "A pigment cell derived from the neural crest. Maps to PRISM PRIMARY_TISSUE='skin'.",
+    "parent_names": [
+      "NeuralCell"
+    ],
+    "parent_name": "NeuralCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#MyeloidCell",
+    "name": "MyeloidCell",
+    "label": "myeloid cell",
+    "description": "A cell of the myeloid lineage, including granulocytes, monocytes, macrophages, and dendritic cells.",
+    "parent_names": [
+      "Leukocyte"
+    ],
+    "parent_name": "Leukocyte",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#NeuralCell",
+    "name": "NeuralCell",
+    "label": "neural cell",
+    "description": "A cell that is part of the nervous system.",
+    "parent_names": [
+      "CellType"
+    ],
+    "parent_name": "CellType",
+    "is_abstract": true,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#NeuralCrestCell",
+    "name": "NeuralCrestCell",
+    "label": "neural crest cell",
+    "description": "A cell derived from the neural crest that migrates to various tissues. Maps to PRISM PRIMARY_TISSUE='central_nervous_system'.",
+    "parent_names": [
+      "NeuralCell"
+    ],
+    "parent_name": "NeuralCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#Osteoblast",
+    "name": "Osteoblast",
+    "label": "osteoblast",
+    "description": "A bone-forming cell which secretes the organic matrix of bone (osteoid).",
+    "parent_names": [
+      "ConnectiveTissueCell"
+    ],
+    "parent_name": "ConnectiveTissueCell",
+    "is_abstract": true,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#OsteosarcomaCell",
+    "name": "OsteosarcomaCell",
+    "label": "osteosarcoma cell",
+    "description": "A malignant osteoblast-derived cell. Maps to PRISM PRIMARY_TISSUE='bone'.",
+    "parent_names": [
+      "Osteoblast"
+    ],
+    "parent_name": "Osteoblast",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#OvarianEpithelialCell",
+    "name": "OvarianEpithelialCell",
+    "label": "ovarian epithelial cell",
+    "description": "An epithelial cell of the ovary. Maps to PRISM PRIMARY_TISSUE='ovary'.",
+    "parent_names": [
+      "EpithelialCell"
+    ],
+    "parent_name": "EpithelialCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#PancreaticEpithelialCell",
+    "name": "PancreaticEpithelialCell",
+    "label": "pancreatic epithelial cell",
+    "description": "An epithelial cell of the pancreas. Maps to PRISM PRIMARY_TISSUE='pancreas'.",
+    "parent_names": [
+      "GlandularEpithelialCell"
+    ],
+    "parent_name": "GlandularEpithelialCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#ProgenitorCell",
+    "name": "ProgenitorCell",
+    "label": "progenitor cell",
+    "description": "A cell that retains the ability to divide and can differentiate into a limited range of cell types.",
+    "parent_names": [
+      "CellType"
+    ],
+    "parent_name": "CellType",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#SecretoryCell",
+    "name": "SecretoryCell",
+    "label": "secretory cell",
+    "description": "A cell whose primary function is the production and release of substances.",
+    "parent_names": [
+      "CellType"
+    ],
+    "parent_name": "CellType",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#SquamousEpithelialCell",
+    "name": "SquamousEpithelialCell",
+    "label": "squamous epithelial cell",
+    "description": "A flat, scale-like epithelial cell found lining surfaces subject to abrasion.",
+    "parent_names": [
+      "EpithelialCell"
+    ],
+    "parent_name": "EpithelialCell",
+    "is_abstract": true,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#Thing",
+    "name": "Thing",
+    "label": "Thing",
+    "description": "Root class of all entities.",
+    "parent_names": [],
+    "parent_name": null,
+    "is_abstract": true,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#ThyroidEpithelialCell",
+    "name": "ThyroidEpithelialCell",
+    "label": "thyroid epithelial cell",
+    "description": "An epithelial cell of the thyroid gland. Maps to PRISM PRIMARY_TISSUE='thyroid'.",
+    "parent_names": [
+      "GlandularEpithelialCell"
+    ],
+    "parent_name": "GlandularEpithelialCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#Tissue",
+    "name": "Tissue",
+    "label": "Tissue",
+    "description": "A tissue type that maps to PRISM PRIMARY_TISSUE values.",
+    "parent_names": [
+      "AnatomicalEntity"
+    ],
+    "parent_name": "AnatomicalEntity",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#Treatment",
+    "name": "Treatment",
+    "label": "Treatment",
+    "description": "A drug or compound used in the PRISM drug screen.",
+    "parent_names": [
+      "BiomedicalEntity"
+    ],
+    "parent_name": "BiomedicalEntity",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#UterineEpithelialCell",
+    "name": "UterineEpithelialCell",
+    "label": "uterine epithelial cell",
+    "description": "An epithelial cell of the uterus. Maps to PRISM PRIMARY_TISSUE='uterus'.",
+    "parent_names": [
+      "EpithelialCell"
+    ],
+    "parent_name": "EpithelialCell",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  },
+  {
+    "uri": "http://purl.obolibrary.org/obo/cl#ViabilityMeasurement",
+    "name": "ViabilityMeasurement",
+    "label": "ViabilityMeasurement",
+    "description": "A drug efficacy measurement (logfold change) from the PRISM screen.",
+    "parent_names": [
+      "BiomedicalEntity"
+    ],
+    "parent_name": "BiomedicalEntity",
+    "is_abstract": false,
+    "is_deprecated": false,
+    "namespace": "http://purl.obolibrary.org/obo/cl"
+  }
+]

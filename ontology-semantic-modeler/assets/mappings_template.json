@@ -1,0 +1,26 @@
+{
+  "_comment": "Fill this template to map OWL classes to your Snowflake tables. See references/example_biomed_output/biomed_mappings.json for a complete example.",
+  "class_mappings": [
+    {
+      "class_name": "YOUR_OWL_CLASS_NAME",
+      "source_table": "DATABASE.SCHEMA.TABLE_NAME",
+      "filter_condition": null,
+      "id_column": "PRIMARY_KEY_COLUMN",
+      "name_column": "DISPLAY_NAME_COLUMN",
+      "description_column": "DESCRIPTION_COLUMN_OR_NULL",
+      "props_column": null
+    }
+  ],
+  "relation_mappings": [
+    {
+      "rel_name": "subClassOf",
+      "source_table": "DATABASE.SCHEMA.EDGE_TABLE",
+      "filter_condition": "EDGE_TYPE = 'subClassOf'",
+      "src_column": "SOURCE_ID_COLUMN",
+      "dst_column": "TARGET_ID_COLUMN",
+      "props_column": null
+    }
+  ],
+  "node_table": "DATABASE.SCHEMA.NODE_TABLE_OR_NULL",
+  "edge_table": "DATABASE.SCHEMA.EDGE_TABLE_OR_NULL"
+}

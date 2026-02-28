@@ -1,0 +1,15 @@
+{
+  "total_classes": 34,
+  "abstract_classes": 11,
+  "concrete_classes": 23,
+  "deprecated_classes": 0,
+  "root_classes": 1,
+  "max_hierarchy_depth": 5,
+  "total_relations": 4,
+  "hierarchical_relations": 2,
+  "transitive_relations": 2,
+  "total_individuals": 0,
+  "top_namespaces": {
+    "http://purl.obolibrary.org/obo/cl": 34
+  }
+}

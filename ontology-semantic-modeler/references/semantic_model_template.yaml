@@ -1,0 +1,132 @@
+# ============================================================================
+# Template: Cortex Analyst Semantic Model for Ontology Views
+# ============================================================================
+# This template shows the YAML structure for a semantic model that exposes
+# ontology views to Cortex Analyst. Key patterns:
+#
+# 1. Each abstract view becomes a "table" entry with standardized dimensions
+# 2. The subClassOf view enables hierarchy traversal
+# 3. Verified queries provide recursive CTE patterns for descendant/ancestor lookups
+# 4. sample_values and synonyms improve term disambiguation
+#
+# Replace {{PLACEHOLDERS}} with actual values.
+# ============================================================================
+
+name: "{{ONTOLOGY_NAME}}_ONTOLOGY_SEMANTIC_VIEW"
+description: >
+  {{ONTOLOGY_NAME}} ontology hierarchy for dynamic traversal. Contains entity types
+  and their subClassOf relationships. Use for finding descendants, hierarchy paths,
+  and entity lookups. For cohort expansion queries, use recursive CTEs on the
+  subclass relations table.
+
+tables:
+  # Entity type table (one per mapped OWL class)
+  - name: "VW_ONT_{{CLASS_NAME}}"
+    base_table:
+      database: "{{DATABASE}}"
+      schema: "{{SCHEMA}}"
+      table: "VW_ONT_{{CLASS_NAME}}"
+    primary_key:
+      columns:
+        - ID
+    dimensions:
+      - name: ID
+        expr: ID
+        data_type: VARCHAR
+        description: "Unique identifier for {{CLASS_LABEL}}"
+      - name: ENTITY_TYPE
+        expr: ENTITY_TYPE
+        data_type: VARCHAR
+      - name: LABEL
+        expr: LABEL
+        data_type: VARCHAR
+        description: "Display name for {{CLASS_LABEL}}"
+        synonyms:
+          - "{{CLASS_LABEL}} name"
+          - "{{CLASS_LABEL}} label"
+        sample_values:
+          - "example value 1"
+          - "example value 2"
+      - name: DESCRIPTION
+        expr: DESCRIPTION
+        data_type: VARCHAR
+
+  # SubClassOf relationship table (always included for hierarchy traversal)
+  - name: VW_ONT_SUBCLASS_OF
+    base_table:
+      database: "{{DATABASE}}"
+      schema: "{{SCHEMA}}"
+      table: VW_ONT_SUBCLASS_OF
+    dimensions:
+      - name: CHILD_ID
+        expr: CHILD_ID
+        data_type: VARCHAR
+      - name: PARENT_ID
+        expr: PARENT_ID
+        data_type: VARCHAR
+      - name: REL_TYPE
+        expr: REL_TYPE
+        data_type: VARCHAR
+      - name: CHILD_NAME
+        expr: CHILD_NAME
+        data_type: VARCHAR
+      - name: PARENT_NAME
+        expr: PARENT_NAME
+        data_type: VARCHAR
+      - name: CHILD_TYPE
+        expr: CHILD_TYPE
+        data_type: VARCHAR
+      - name: PARENT_TYPE
+        expr: PARENT_TYPE
+        data_type: VARCHAR
+
+verified_queries:
+  # Pattern: Direct children lookup
+  - name: direct_children
+    question: "What are the direct children of {{EXAMPLE_ENTITY}}?"
+    sql: >
+      SELECT CHILD_ID, CHILD_NAME
+      FROM VW_ONT_SUBCLASS_OF
+      WHERE PARENT_NAME = '{{EXAMPLE_ENTITY}}'
+      ORDER BY CHILD_NAME
+    verified_at: 0
+    verified_by: "Ontology Semantic Modeler"
+
+  # Pattern: Recursive descendant expansion
+  - name: descendants_recursive
+    question: "What are all descendants of {{EXAMPLE_ENTITY}}?"
+    sql: |
+      WITH RECURSIVE descendants AS (
+        SELECT ID AS NODE_ID, LABEL AS NODE_NAME, 0 AS depth
+        FROM VW_ONT_{{CLASS_NAME}} WHERE LABEL = '{{EXAMPLE_ENTITY}}'
+        UNION ALL
+        SELECT c.CHILD_ID, c.CHILD_NAME, d.depth + 1
+        FROM VW_ONT_SUBCLASS_OF c
+        JOIN descendants d ON c.PARENT_ID = d.NODE_ID
+        WHERE d.depth < 10
+      )
+      SELECT NODE_ID, NODE_NAME, depth FROM descendants ORDER BY depth, NODE_NAME
+    verified_at: 0
+    verified_by: "Ontology Semantic Modeler"
+
+  # Pattern: Most children (hub nodes)
+  - name: most_children
+    question: "Which entities have the most direct children?"
+    sql: >
+      SELECT PARENT_NAME, COUNT(DISTINCT CHILD_ID) AS child_count
+      FROM VW_ONT_SUBCLASS_OF
+      GROUP BY PARENT_NAME
+      ORDER BY child_count DESC LIMIT 20
+    verified_at: 0
+    verified_by: "Ontology Semantic Modeler"
+
+  # Pattern: Entity search
+  - name: entity_search
+    question: "Find entities matching a keyword"
+    sql: >
+      SELECT ID, LABEL, DESCRIPTION
+      FROM VW_ONT_{{CLASS_NAME}}
+      WHERE LABEL ILIKE '%{{KEYWORD}}%'
+      ORDER BY LABEL LIMIT 50
+    verified_at: 0
+    verified_by: "Ontology Semantic Modeler"

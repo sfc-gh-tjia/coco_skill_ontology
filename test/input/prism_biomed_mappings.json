@@ -1,0 +1,69 @@
+{
+  "class_mappings": [
+    {
+      "class_name": "CellType",
+      "source_table": "TEMP.ONTOLOGY_POC.KG_NODE",
+      "filter_condition": "NODE_TYPE IN ('CellType', 'cl')",
+      "id_column": "NODE_ID",
+      "name_column": "NAME",
+      "description_column": "DESCRIPTION",
+      "props_column": "PROPS"
+    },
+    {
+      "class_name": "AnatomicalEntity",
+      "source_table": "TEMP.ONTOLOGY_POC.KG_NODE",
+      "filter_condition": "NODE_TYPE = 'AnatomicalEntity'",
+      "id_column": "NODE_ID",
+      "name_column": "NAME",
+      "description_column": "DESCRIPTION",
+      "props_column": "PROPS"
+    },
+    {
+      "class_name": "Treatment",
+      "source_table": "TEMP.ONTOLOGY_POC.PRISM_TREATMENTS",
+      "filter_condition": null,
+      "id_column": "BROAD_ID",
+      "name_column": "NAME",
+      "description_column": null,
+      "props_column": null
+    },
+    {
+      "class_name": "CellLine",
+      "source_table": "TEMP.ONTOLOGY_POC.PRISM_CELL_LINES",
+      "filter_condition": null,
+      "id_column": "DEPMAP_ID",
+      "name_column": "CCLE_NAME",
+      "description_column": null,
+      "props_column": null
+    },
+    {
+      "class_name": "ViabilityMeasurement",
+      "source_table": "TEMP.ONTOLOGY_POC.PRISM_VIABILITY",
+      "filter_condition": null,
+      "id_column": "ROW_NAME || '::' || COLUMN_NAME",
+      "name_column": null,
+      "description_column": null,
+      "props_column": null
+    }
+  ],
+  "relation_mappings": [
+    {
+      "rel_name": "subClassOf",
+      "source_table": "TEMP.ONTOLOGY_POC.KG_EDGE",
+      "filter_condition": "EDGE_TYPE = 'subClassOf'",
+      "src_column": "SRC_ID",
+      "dst_column": "DST_ID",
+      "props_column": "PROPS"
+    },
+    {
+      "rel_name": "derives_from",
+      "source_table": "TEMP.ONTOLOGY_POC.PRISM_TISSUE_TO_CL",
+      "filter_condition": null,
+      "src_column": "PRIMARY_TISSUE",
+      "dst_column": "CL_NODE_ID",
+      "props_column": null
+    }
+  ],
+  "node_table": "TEMP.ONTOLOGY_POC.KG_NODE",
+  "edge_table": "TEMP.ONTOLOGY_POC.KG_EDGE"
+}
