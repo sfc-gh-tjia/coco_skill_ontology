@@ -209,6 +209,8 @@ This test is designed to be reproduced through natural-language prompts in [Cort
 
 **Expected result:** Launches Streamlit app with class hierarchy tree, force-directed ontology graph, and coverage matrix.
 
+![Ontology Graph Visualization](../assets/ontology_graph.png)
+
 ## Expected Queries Enabled
 
 The deployed ontology semantic model enables natural-language queries through Cortex Analyst such as:

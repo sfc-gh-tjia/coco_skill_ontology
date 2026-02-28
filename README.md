@@ -10,6 +10,8 @@ Domain ontologies (OWL/RDF) encode rich class hierarchies and relationships, but
 
 ```
 coco_skill/
+├── assets/
+│   └── ontology_graph.png          # Ontology graph visualization screenshot
 ├── ontology-semantic-modeler/      # The Cortex Code skill
 │   ├── SKILL.md                    # Skill definition and 6-step workflow
 │   ├── scripts/                    # Python scripts (parse, generate, visualize)
@@ -123,6 +125,8 @@ The walkthrough below shows the exact prompts used to produce the test artifacts
 - **Class Hierarchy** — expandable tree with search, shows ancestry paths
 - **Ontology Graph** — force-directed graph with coverage coloring (green = mapped, blue = covered by ancestor, red = unmapped, gray = abstract)
 - **Coverage Matrix** — breakdown of mapped/covered/unmapped classes with progress bar
+
+![Ontology Graph Visualization](assets/ontology_graph.png)
 
 ---
 
