@@ -177,44 +177,37 @@ Same semantic model with `TEST_COCO_SKILL_` prefix on all view names and fully-q
 
 ## Reproducing the Test
 
-### Step 2: Parse OWL
+This test is designed to be reproduced through natural-language prompts in [Cortex Code](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code) using the `ontology-semantic-modeler` skill. The prompts below produce all the artifacts in this directory.
 
-```bash
-uv run --script ../ontology-semantic-modeler/scripts/parse_owl.py -- \
-  --owl-file input/cell_ontology_prism.owl \
-  --output-dir parsed/
-```
+### Prompt 1 — Provide inputs and parse the ontology (Steps 1-2)
 
-Expected output: 34 classes, 4 relations, 0 individuals, max depth 5.
+> I have an OWL ontology at `test/input/cell_ontology_prism.owl` modeling the Cell Ontology hierarchy for our PRISM drug screening data. I also have a baseline semantic model at `test/input/prism_drug_efficacy.yaml`.
+>
+> Generate an ontology semantic model that bridges the cell type hierarchy with our Snowflake tables in `TEMP.ONTOLOGY_POC`. Use ontology name `CL_PRISM`. Source tables: `KG_NODE`, `KG_EDGE`, `PRISM_TREATMENTS`, `PRISM_CELL_LINES`, `PRISM_VIABILITY`, `PRISM_TISSUE_TO_CL`.
 
-### Step 4: Generate Artifacts
+**Expected result:** Parses 34 classes (11 abstract, 23 concrete), 4 object properties, max hierarchy depth 5.
 
-```bash
-uv run --script ../ontology-semantic-modeler/scripts/generate_artifacts.py -- \
-  --classes-json parsed/classes.json \
-  --relations-json parsed/relations.json \
-  --mappings-json input/prism_biomed_mappings.json \
-  --database TEMP \
-  --schema ONTOLOGY_POC \
-  --ontology-name CL_PRISM \
-  --output-dir generated/
-```
+**Output:** `parsed/classes.json`, `parsed/relations.json`, `parsed/stats.json`
 
-### Step 5: Deploy to Snowflake
+### Prompt 2 — Confirm mappings and generate artifacts (Steps 3-4)
 
-Execute in order against `TEMP.ONTOLOGY_POC`:
+> Map CellType and AnatomicalEntity to `KG_NODE` with NODE_TYPE filters. Map Treatment to `PRISM_TREATMENTS`, CellLine to `PRISM_CELL_LINES`, ViabilityMeasurement to `PRISM_VIABILITY`. For relationships, map subClassOf to `KG_EDGE` filtered by `EDGE_TYPE = 'subClassOf'`, and derives_from to `PRISM_TISSUE_TO_CL`.
 
-```sql
--- 1. Create metadata tables
--- (run generated/01_metadata_tables.sql)
+**Expected result:** Generates 3 files — metadata tables SQL (4 tables, 34 class rows), abstract views SQL (10 views), semantic model YAML (6 tables, 5 verified queries).
 
--- 2. Create abstract views
--- (run generated/02_abstract_views.sql)
+**Output:** `generated/01_metadata_tables.sql`, `generated/02_abstract_views.sql`, `generated/03_ontology_semantic_model.yaml`
 
--- 3. Create semantic view
-CREATE OR REPLACE SEMANTIC VIEW TEMP.ONTOLOGY_POC.CL_PRISM_ONTOLOGY_SEMANTIC_VIEW
-  AS SEMANTIC MODEL '<contents of generated/03_ontology_semantic_model.yaml>';
-```
+### Prompt 3 — Deploy to Snowflake (Step 5)
+
+> Deploy everything to Snowflake in `TEMP.ONTOLOGY_POC`.
+
+**Expected result:** Creates 4 metadata tables, 10 views, and semantic view `CL_PRISM_ONTOLOGY_SEMANTIC_VIEW` in `TEMP.ONTOLOGY_POC`.
+
+### Prompt 4 — Visualize (Step 6, optional)
+
+> Show me the ontology visualization.
+
+**Expected result:** Launches Streamlit app with class hierarchy tree, force-directed ontology graph, and coverage matrix.
 
 ## Expected Queries Enabled
 
